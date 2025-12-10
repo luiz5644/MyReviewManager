@@ -15,9 +15,9 @@ data class Review(
 ){
     fun getPriorityColor(): Long {
         return when(priority){
-            3L -> 0xFFFF5252 // vermelho pra ruim
-            2L -> 0xFFFFB74D // amarelo pra médio
-            else -> 0xFF4CAF50 // verde pra bom
+            3L -> 0xFFFF5252
+            2L -> 0xFFFFB74D
+            else -> 0xFF4CAF50
         }
     }
 

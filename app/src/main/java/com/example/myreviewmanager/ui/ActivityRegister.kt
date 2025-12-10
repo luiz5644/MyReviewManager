@@ -1,26 +1,26 @@
 package com.example.myreviewmanager.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myreviewmanager.data.ReviewDatabase
+import com.example.myreviewmanager.data.User
 import com.example.myreviewmanager.data.UserDao
-import com.example.myreviewmanager.databinding.ActivityLoginBinding
+import com.example.myreviewmanager.databinding.ActivityRegisterBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ActivityLogin : AppCompatActivity() {
+class ActivityRegister : AppCompatActivity() {
 
-    private lateinit var binding: ActivityLoginBinding
+    private lateinit var binding: ActivityRegisterBinding
     private lateinit var userDao: UserDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val database = ReviewDatabase.getDatabase(applicationContext)
@@ -30,17 +30,12 @@ class ActivityLogin : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-
-        binding.btnEnter.setOnClickListener {
-            performLogin()
-        }
-
-        binding.tvRegisterLink.setOnClickListener {
-            startActivity(Intent(this, ActivityRegister::class.java))
+        binding.btnRegister.setOnClickListener {
+            performRegistration()
         }
     }
 
-    private fun performLogin() {
+    private fun performRegistration() {
         val username = binding.etUser.text.toString().trim()
         val password = binding.etPassword.text.toString().trim()
 
@@ -51,17 +46,27 @@ class ActivityLogin : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
 
-            val user = userDao.getUserByCredentials(username, password)
-            Log.d("TESTE_LOGIN", "User encontrado: $user")
+            val existingUser = userDao.findUserByUsername(username)
+
+            if (existingUser != null) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@ActivityRegister,
+                        "Usuário '$username' já existe!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                return@launch
+            }
+
+            val newUser = User(username = username, password = password)
+            val result = userDao.insertUser(newUser)
+
+            Log.d("REGISTER_TEST", "Usuário cadastrado com id: $result")
 
             withContext(Dispatchers.Main) {
-                if (user != null) {
-                    Toast.makeText(this@ActivityLogin, "Bem-vindo, $username!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@ActivityLogin, MainActivity::class.java))
-                    finish()
-                } else {
-                    Toast.makeText(this@ActivityLogin, "Usuário ou senha inválidos.", Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(this@ActivityRegister, "Cadastro realizado!", Toast.LENGTH_LONG).show()
+                finish()
             }
         }
     }
