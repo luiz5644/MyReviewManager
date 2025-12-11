@@ -1,10 +1,10 @@
 package com.example.myreviewmanager.ui
 
-// ... (Imports omitidos para brevidade, mas devem incluir todos os seus imports originais)
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -12,13 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myreviewmanager.R
 import com.example.myreviewmanager.data.Review
 import com.example.myreviewmanager.data.ReviewDatabase
+import com.example.myreviewmanager.data.remote.model.Movie
 import com.example.myreviewmanager.databinding.FragmentReviewsBinding
 import com.example.myreviewmanager.databinding.DialogReviewBinding
 import com.example.myreviewmanager.repository.ReviewRepository
 import com.example.myreviewmanager.ui.adapter.ReviewAdapter
 import com.example.myreviewmanager.viewmodel.ReviewViewModel
 import com.example.myreviewmanager.viewmodel.ReviewViewModelFactory
-// ...
 
 class ReviewsFragment : Fragment() {
 
@@ -42,6 +42,21 @@ class ReviewsFragment : Fragment() {
         setupRecyclerView()
         setupClickListeners()
         observeReviews()
+
+        // NOVO: Verifica se há um filme pendente vindo da NovaTelaFragment
+        if (MainActivity.pendingMovieForReview != null) {
+            val movie = MainActivity.pendingMovieForReview!!
+            startNewReviewFromMovie(movie)
+            MainActivity.pendingMovieForReview = null // Limpa o estado
+        }
+    }
+
+    // NOVO: Função auxiliar para iniciar a review a partir de um Movie
+    private fun startNewReviewFromMovie(movie: Movie) {
+        showReviewDialog(
+            existingReview = null,
+            movieFromSearch = movie
+        )
     }
 
     private fun setupViewModel() {
@@ -53,7 +68,7 @@ class ReviewsFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = ReviewAdapter(
-            onItemClick = { review -> showReviewDialog(review) },
+            onItemClick = { review -> showReviewDialog(existingReview = review) },
             onLongItemClick = { review -> showDeleteConfirmation(review) }
         )
         binding.rvReviews.layoutManager = LinearLayoutManager(requireContext())
@@ -61,7 +76,7 @@ class ReviewsFragment : Fragment() {
     }
 
     private fun observeReviews() {
-        viewModel.allReviews.observe(viewLifecycleOwner) { reviews -> // Use viewLifecycleOwner
+        viewModel.allReviews.observe(viewLifecycleOwner) { reviews ->
             adapter.updateReviews(reviews)
             if (reviews.isEmpty()) {
                 binding.rvReviews.visibility = View.GONE
@@ -74,13 +89,14 @@ class ReviewsFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        // O clique no botão 'Adicionar nova review' agora abre o diálogo sem preenchimento
         binding.btnAddReview.setOnClickListener {
             showReviewDialog()
         }
     }
 
     private fun showDeleteConfirmation(review: Review) {
-        AlertDialog.Builder(requireContext()) // Use requireContext()
+        AlertDialog.Builder(requireContext())
             .setTitle("Apagar Review")
             .setMessage("Você quer apagar '${review.title}'?")
             .setPositiveButton("Apagar") { _, _ ->
@@ -90,23 +106,66 @@ class ReviewsFragment : Fragment() {
             .show()
     }
 
-    private fun showReviewDialog(existingReview: Review? = null) {
+    // FUNÇÃO MODIFICADA: Agora aceita um Movie opcional
+    private fun showReviewDialog(existingReview: Review? = null, movieFromSearch: Movie? = null) {
         val dialogBinding = DialogReviewBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(requireContext()) // Use requireContext()
+        val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
             .create()
 
-        // Lógica de preenchimento e save... (Copie o resto da sua lógica original aqui)
-        // ...
+        // CORRIGIDO: Mudei para String? para receber o imdbID
+        var tmdbIdToSave: String? = null
+        val isEditing = existingReview != null
 
-        // Exemplo de como usar o dialogBinding.btnSave
+        // --- PREENCHIMENTO E DEFINIÇÃO DO ESTADO ---
+        if (isEditing) {
+            dialogBinding.etTitle.setText(existingReview!!.title)
+            // Assumindo que você tenha um campo para 'description'
+            // dialogBinding.etDescription.setText(existingReview.description)
+            // Usa o tmdbId, que agora deve ser String? na classe Review
+            tmdbIdToSave = existingReview.tmdbId
+            dialog.setTitle("Editar Review")
+        } else if (movieFromSearch != null) {
+            // Se veio da busca
+            dialogBinding.etTitle.setText(movieFromSearch.title)
+            dialogBinding.etTitle.isEnabled = false // Título do filme é fixo
+            // CORRIGIDO: Usa o imdbID padronizado da classe Movie (OMDb)
+            tmdbIdToSave = movieFromSearch.imdbID
+            dialog.setTitle("Nova Review: ${movieFromSearch.title}")
+        } else {
+            dialog.setTitle("Adicionar Nova Review")
+        }
+
+        // --- LÓGICA DE SALVAMENTO ---
         dialogBinding.btnSave.setOnClickListener {
             val title = dialogBinding.etTitle.text.toString().trim()
             val description = dialogBinding.etDescription.text.toString().trim()
 
-            // ... (restante da lógica de validação e salvamento/atualização)
+            // TODO: Substitua 1L pela lógica real de obter a prioridade/rating do seu DialogReviewBinding
+            val priority = 1L
 
-            dialog.dismiss()
+            if (title.isNotEmpty() && description.isNotEmpty()) {
+
+                val reviewToSave = Review(
+                    id = existingReview?.id ?: 0,
+                    title = title,
+                    // CORRIGIDO: Usa tmdbIdToSave (String?)
+                    tmdbId = tmdbIdToSave,
+                    description = description,
+                    priority = priority,
+                    createdAt = existingReview?.createdAt ?: System.currentTimeMillis()
+                )
+
+                if (isEditing) {
+                    viewModel.updateReview(reviewToSave)
+                } else {
+                    viewModel.insertReview(reviewToSave)
+                }
+
+                dialog.dismiss()
+            } else {
+                Toast.makeText(requireContext(), "Preencha Título e Descrição", Toast.LENGTH_SHORT).show()
+            }
         }
 
         dialog.show()

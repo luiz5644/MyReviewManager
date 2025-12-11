@@ -1,18 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E0F7FA"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF"
     tools:context=".ui.NovaTelaFragment">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Esta é a Nova Tela (Botão Esquerdo)"
-        android:textSize="20sp"
+        android:text="Buscar Filme para Review"
+        android:textSize="24sp"
+        android:textStyle="bold"
         android:textColor="#000000"
-        android:padding="16dp"/>
+        android:layout_marginBottom="16dp"/>
 
-</FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <EditText
+            android:id="@+id/etSearchQuery"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Digite o nome do filme..."
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:padding="12dp"
+            android:background="@drawable/rounded_edittext_background"
+            tools:ignore="HardcodedText" />
+
+        <ImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_search_category_default"
+            android:background="@drawable/rounded_button_background"
+            android:contentDescription="Botão de Busca"/>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSearchResults"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_movie_search" />
+
+</LinearLayout>

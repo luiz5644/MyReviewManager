@@ -8,9 +8,12 @@ import java.util.Date
 data class Review(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
+
+
+    val tmdbId: String? = null,
+
     val description: String,
     val priority: Long = 1,
-
     val createdAt: Long = Date().time
 ){
     fun getPriorityColor(): Long {
