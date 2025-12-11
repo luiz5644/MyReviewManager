@@ -9,6 +9,8 @@ data class Review(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
 
+    // NOVO: Campo para armazenar o ID do usuário que criou a review
+    val userId: Long,
 
     val tmdbId: String? = null,
 

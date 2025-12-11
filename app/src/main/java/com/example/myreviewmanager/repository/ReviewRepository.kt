@@ -5,10 +5,14 @@ import com.example.myreviewmanager.data.Review
 import com.example.myreviewmanager.data.ReviewDao
 
 class ReviewRepository(private val reviewDao: ReviewDao) {
-    val allReviews: LiveData<List<Review>> = reviewDao.getAllReviews()
+
+    // CORRIGIDO: allReviews é AGORA uma função que DEVE receber o ID do usuário.
+    fun getAllReviews(currentUserId: Long): LiveData<List<Review>> {
+        return reviewDao.getAllReviews(currentUserId)
+    }
 
     suspend fun insertReview(review: Review): Long {
-       return reviewDao.insertReview(review)
+        return reviewDao.insertReview(review)
     }
 
     suspend fun updateReview(review: Review){
@@ -20,7 +24,7 @@ class ReviewRepository(private val reviewDao: ReviewDao) {
     }
 
     suspend fun getReviewById(reviewId: Long): Review {
-       return reviewDao.getReviewById(reviewId)
+        return reviewDao.getReviewById(reviewId)
     }
 
 }

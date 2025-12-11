@@ -12,11 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myreviewmanager.R
 import com.example.myreviewmanager.data.Review
 import com.example.myreviewmanager.data.ReviewDatabase
+
 import com.example.myreviewmanager.data.remote.model.Movie
 import com.example.myreviewmanager.databinding.FragmentReviewsBinding
 import com.example.myreviewmanager.databinding.DialogReviewBinding
 import com.example.myreviewmanager.repository.ReviewRepository
 import com.example.myreviewmanager.ui.adapter.ReviewAdapter
+import com.example.myreviewmanager.data.UserManager // NOVO IMPORT
 import com.example.myreviewmanager.viewmodel.ReviewViewModel
 import com.example.myreviewmanager.viewmodel.ReviewViewModelFactory
 
@@ -76,6 +78,7 @@ class ReviewsFragment : Fragment() {
     }
 
     private fun observeReviews() {
+        // A lógica de busca do userId já está no ViewModel
         viewModel.allReviews.observe(viewLifecycleOwner) { reviews ->
             adapter.updateReviews(reviews)
             if (reviews.isEmpty()) {
@@ -89,7 +92,6 @@ class ReviewsFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // O clique no botão 'Adicionar nova review' agora abre o diálogo sem preenchimento
         binding.btnAddReview.setOnClickListener {
             showReviewDialog()
         }
@@ -106,37 +108,35 @@ class ReviewsFragment : Fragment() {
             .show()
     }
 
-    // FUNÇÃO MODIFICADA: Agora aceita um Movie opcional
+
     private fun showReviewDialog(existingReview: Review? = null, movieFromSearch: Movie? = null) {
         val dialogBinding = DialogReviewBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
             .create()
 
-        // CORRIGIDO: Mudei para String? para receber o imdbID
         var tmdbIdToSave: String? = null
         val isEditing = existingReview != null
+
+        // 1. OBTÉM O ID DO USUÁRIO LOGADO ANTES DE TUDO
+        val currentUserId = UserManager.requireUserId
 
         // --- PREENCHIMENTO E DEFINIÇÃO DO ESTADO ---
         if (isEditing) {
             dialogBinding.etTitle.setText(existingReview!!.title)
-            // Assumindo que você tenha um campo para 'description'
-            // dialogBinding.etDescription.setText(existingReview.description)
-            // Usa o tmdbId, que agora deve ser String? na classe Review
+            // Lógica de descrição, etc.
             tmdbIdToSave = existingReview.tmdbId
             dialog.setTitle("Editar Review")
         } else if (movieFromSearch != null) {
-            // Se veio da busca
             dialogBinding.etTitle.setText(movieFromSearch.title)
-            dialogBinding.etTitle.isEnabled = false // Título do filme é fixo
-            // CORRIGIDO: Usa o imdbID padronizado da classe Movie (OMDb)
+            dialogBinding.etTitle.isEnabled = false
             tmdbIdToSave = movieFromSearch.imdbID
             dialog.setTitle("Nova Review: ${movieFromSearch.title}")
         } else {
             dialog.setTitle("Adicionar Nova Review")
         }
 
-        // --- LÓGICA DE SALVAMENTO ---
+        // --- LÓGICA DE SALVAMENTO (AGORA CORRETAMENTE DENTRO DO LISTENER) ---
         dialogBinding.btnSave.setOnClickListener {
             val title = dialogBinding.etTitle.text.toString().trim()
             val description = dialogBinding.etDescription.text.toString().trim()
@@ -149,7 +149,11 @@ class ReviewsFragment : Fragment() {
                 val reviewToSave = Review(
                     id = existingReview?.id ?: 0,
                     title = title,
-                    // CORRIGIDO: Usa tmdbIdToSave (String?)
+
+                    // ESSENCIAL: Garante que o ID do usuário é anexado corretamente.
+                    // Usa o ID da review existente (se editando) OU o ID do usuário logado (se novo).
+                    userId = existingReview?.userId ?: currentUserId,
+
                     tmdbId = tmdbIdToSave,
                     description = description,
                     priority = priority,

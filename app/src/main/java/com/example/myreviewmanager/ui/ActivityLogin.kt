@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myreviewmanager.data.ReviewDatabase
 import com.example.myreviewmanager.data.UserDao
+import com.example.myreviewmanager.data.UserManager
 import com.example.myreviewmanager.databinding.ActivityLoginBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +57,10 @@ class ActivityLogin : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 if (user != null) {
+
+                    // CORRIGIDO: SALVAR O ID DO USUÁRIO LOGADO
+                    UserManager.setLoggedInUser(user.id) // Presumindo que sua entidade User tem um campo 'id' do tipo Long
+
                     Toast.makeText(this@ActivityLogin, "Bem-vindo, $username!", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@ActivityLogin, MainActivity::class.java))
                     finish()

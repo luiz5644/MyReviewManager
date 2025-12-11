@@ -10,8 +10,10 @@ import androidx.room.Update
 
 @Dao
 interface ReviewDao {
-    @Query("SELECT * FROM reviews ORDER BY createdAt DESC")
-    fun getAllReviews(): LiveData<List<Review>>
+
+    // CORRIGIDO: Agora a busca requer o ID do usuário
+    @Query("SELECT * FROM reviews WHERE userId = :currentUserId ORDER BY createdAt DESC")
+    fun getAllReviews(currentUserId: Long): LiveData<List<Review>>
 
     @Query("SELECT * FROM reviews WHERE id = :reviewId")
     suspend fun getReviewById(reviewId: Long): Review
@@ -27,6 +29,4 @@ interface ReviewDao {
 
     @Query("DELETE FROM reviews WHERE id = :reviewId")
     suspend fun deleteReviewById(reviewId: Long)
-
-
 }
