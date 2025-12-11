@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/reviewsFragment">
+
+    <fragment
+        android:id="@+id/reviewsFragment"
+        android:name="com.example.myreviewmanager.ui.ReviewsFragment"
+        android:label="Reviews do Luiz"
+        tools:layout="@layout/fragment_reviews" />
+
+    <fragment
+        android:id="@+id/telaNovaFragment"
+        android:name="com.example.myreviewmanager.ui.NovaTelaFragment"
+        android:label="Nova Tela"
+        tools:layout="@layout/fragment_nova_tela" />
+
+</navigation>
