@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray"
+    android:background="@color/azul_claro"
     android:padding="32dp"
     tools:context=".ui.ActivityLogin">
 
@@ -12,8 +12,8 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="O melhor"
-        android:textColor="@android:color/white"
+        android:text="ReviewFlix"
+        android:textColor="@color/azul_base"
         android:textSize="48sp"
         android:textStyle="bold"
         android:layout_marginTop="100dp"
@@ -68,7 +68,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:backgroundTint="#4077A9"
+        android:backgroundTint="@color/azul_escuro"
         android:padding="16dp"
         android:text="Entrar"
         android:textColor="@android:color/white"

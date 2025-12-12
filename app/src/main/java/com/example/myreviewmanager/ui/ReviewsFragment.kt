@@ -42,7 +42,7 @@ class ReviewsFragment : Fragment() {
 
         setupViewModel()
         setupRecyclerView()
-        setupClickListeners()
+//        setupClickListeners()
         observeReviews()
 
         // NOVO: Verifica se há um filme pendente vindo da NovaTelaFragment
@@ -91,11 +91,11 @@ class ReviewsFragment : Fragment() {
         }
     }
 
-    private fun setupClickListeners() {
-        binding.btnAddReview.setOnClickListener {
-            showReviewDialog()
-        }
-    }
+//    private fun setupClickListeners() {
+//        binding.btnAddReview.setOnClickListener {
+//            showReviewDialog()
+//        }
+//    }
 
     private fun showDeleteConfirmation(review: Review) {
         AlertDialog.Builder(requireContext())

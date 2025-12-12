@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         app:cardCornerRadius="0dp"
-        app:cardBackgroundColor="#2196F3">
+        app:cardBackgroundColor="@color/azul_claro">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,36 +23,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Reviews do Luiz"
-                android:textColor="@android:color/white"
+                android:textColor="@color/azul_base"
                 android:textSize="28sp"
                 android:textStyle="bold"
+
                 android:paddingTop="32dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Livros lidos"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
+
+
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAddReview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Adicionar nova review"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:icon="@android:drawable/ic_input_add"
-        app:iconGravity="textStart"
-        app:cornerRadius="12dp"
-        android:backgroundTint="#2196F3" />
+<!--    <com.google.android.material.button.MaterialButton-->
+<!--        android:id="@+id/btnAddReview"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:text="Adicionar nova review"-->
+<!--        android:textSize="16sp"-->
+<!--        android:textStyle="bold"-->
+<!--        app:icon="@android:drawable/ic_input_add"-->
+<!--        app:iconGravity="textStart"-->
+<!--        app:cornerRadius="12dp"-->
+<!--        android:backgroundTint="#2196F3" />-->
 
 
     <androidx.recyclerview.widget.RecyclerView

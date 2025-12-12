@@ -10,4 +10,9 @@
     <color name="gray">#FF9E9E9E</color>
     <color name="green">#FF4CAF50</color>
     <color name="red">#FFFF5252</color>
+
+    <color name="azul_escuro">#2B5882</color>
+
+    <color name="azul_claro">#A9C5E3</color>
+    <color name="azul_base">#4077A9</color>
 </resources>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
+    android:background="@color/azul_claro"
     android:padding="32dp"
     tools:context=".ui.ActivityRegister">
 
@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Criar Conta"
-        android:textColor="@android:color/white"
+        android:textColor="@color/azul_base"
         android:textSize="48sp"
         android:textStyle="bold"
         android:layout_marginTop="100dp"
@@ -66,7 +66,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:backgroundTint="#00AA00"
+        android:backgroundTint="@color/azul_escuro"
         android:padding="16dp"
         android:text="CADASTRAR"
         android:textColor="@android:color/white"

@@ -6,17 +6,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="#FFFFFF"
+    android:background="@color/azul_claro"
     tools:context=".ui.NovaTelaFragment">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Buscar Filme para Review"
-        android:textSize="24sp"
+        android:text="Buscar filme para review"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="#000000"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="10dp"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,18 +36,23 @@
             android:inputType="text"
             android:imeOptions="actionSearch"
             android:padding="12dp"
+
             android:background="@drawable/rounded_edittext_background"
             tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/btnSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+
+            android:layout_width="50dp"
+
+            android:layout_height="50dp"
+
             android:layout_marginStart="8dp"
             android:padding="12dp"
             android:src="@android:drawable/ic_search_category_default"
             android:background="@drawable/rounded_button_background"
-            android:contentDescription="Botão de Busca"/>
+            android:contentDescription="Botão de Busca"
+            android:backgroundTint="@color/azul_base" />
 
     </LinearLayout>
 
