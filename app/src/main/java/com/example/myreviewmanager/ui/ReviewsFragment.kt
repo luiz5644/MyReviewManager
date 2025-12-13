@@ -29,8 +29,6 @@ class ReviewsFragment : Fragment() {
     private var _binding: FragmentReviewsBinding? = null
     private val binding get() = _binding!!
 
-    // ... (onCreateView, onViewCreated, setupViewModel, setupRecyclerView, observeReviews permanecem inalterados) ...
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,7 +44,7 @@ class ReviewsFragment : Fragment() {
         setupRecyclerView()
         observeReviews()
 
-        // NOVO: Verifica se há um filme pendente vindo da NovaTelaFragment
+        // Verifica se há um filme pendente vindo da NovaTelaFragment
         if (MainActivity.pendingMovieForReview != null) {
             val movie = MainActivity.pendingMovieForReview!!
             startNewReviewFromMovie(movie)
@@ -117,10 +115,8 @@ class ReviewsFragment : Fragment() {
         if (isEditing) {
             dialogBinding.etTitle.setText(existingReview!!.title)
 
-            // CORREÇÃO 1: CARREGAR A DESCRIÇÃO NO CAMPO DE EDIÇÃO
+            // Carrega Descrição e Avaliação
             dialogBinding.etDescription.setText(existingReview.description)
-
-            // CORREÇÃO 2: CARREGAR A PRIORIDADE/AVALIAÇÃO
             when (existingReview.priority) {
                 1L -> dialogBinding.rgPriority.check(R.id.rbLow)
                 2L -> dialogBinding.rgPriority.check(R.id.rbMedium)
@@ -129,6 +125,12 @@ class ReviewsFragment : Fragment() {
 
             tmdbIdToSave = existingReview.tmdbId
             dialog.setTitle("Editar Review")
+
+            // ==============================================
+            // CORREÇÃO 1: MUDAR O TEXTO DO BOTÃO PARA ATUALIZAR
+            dialogBinding.btnSave.text = "Atualizar"
+            // ==============================================
+
         } else if (movieFromSearch != null) {
             dialogBinding.etTitle.setText(movieFromSearch.title)
             dialogBinding.etTitle.isEnabled = false
@@ -138,17 +140,23 @@ class ReviewsFragment : Fragment() {
             dialog.setTitle("Adicionar Nova Review")
         }
 
+        // ==============================================
+        // CORREÇÃO 2: IMPLEMENTAR LISTENER PARA O BOTÃO CANCELAR
+        dialogBinding.btnCancel.setOnClickListener {
+            dialog.dismiss() // Apenas fecha o diálogo
+        }
+        // ==============================================
+
         // --- LÓGICA DE SALVAMENTO ---
         dialogBinding.btnSave.setOnClickListener {
             val title = dialogBinding.etTitle.text.toString().trim()
             val description = dialogBinding.etDescription.text.toString().trim()
 
-            // CORREÇÃO 3: LER A PRIORIDADE/AVALIAÇÃO CORRETA DO RADIO GROUP
             val priority = when (dialogBinding.rgPriority.checkedRadioButtonId) {
                 R.id.rbLow -> 1L // "Bom"
                 R.id.rbMedium -> 2L // "Médio"
                 R.id.rbHigh -> 3L // "Ruim"
-                else -> 1L // Padrão se nada estiver selecionado
+                else -> 1L // Padrão
             }
 
             if (title.isNotEmpty() && description.isNotEmpty()) {
@@ -159,7 +167,7 @@ class ReviewsFragment : Fragment() {
                     userId = existingReview?.userId ?: currentUserId,
                     tmdbId = tmdbIdToSave,
                     description = description,
-                    priority = priority, // Usa a prioridade lida do RadioGroup
+                    priority = priority,
                     createdAt = existingReview?.createdAt ?: System.currentTimeMillis()
                 )
 
