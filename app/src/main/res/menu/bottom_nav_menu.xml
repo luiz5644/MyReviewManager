@@ -4,6 +4,7 @@
     <item
         android:id="@+id/telaNovaFragment"
         android:icon="@drawable/ic_pesquisa"
+        android:tint="@color/azul_claro"
 
 
         />
@@ -11,6 +12,7 @@
     <item
         android:id="@+id/reviewsFragment"
         android:icon="@drawable/ic_filmes"
+        android:tint="@color/black"
         />
 
 </menu>

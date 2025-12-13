@@ -1,5 +1,6 @@
 package com.example.myreviewmanager.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myreviewmanager.R // Import necessário para acessar R.id
+import com.example.myreviewmanager.R
 import com.example.myreviewmanager.data.Review
 import com.example.myreviewmanager.data.ReviewDatabase
 
@@ -40,6 +41,21 @@ class ReviewsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // ==============================================================
+        // CORREÇÃO: CARREGAR O NOME DO USUÁRIO NO CABEÇALHO
+        // ==============================================================
+        val userName = UserManager.requireUserName
+        binding.tvHeaderTitle.text = "Reviews do $userName"
+
+        // ==============================================================
+        // NOVO: IMPLEMENTAÇÃO DO LOGOUT NO BOTÃO
+        // ==============================================================
+        binding.btnLogout.setOnClickListener {
+            performLogout()
+        }
+        // ==============================================================
+
+        // FUNÇÕES RESTAURADAS APÓS O ERRO 'Unresolved reference'
         setupViewModel()
         setupRecyclerView()
         observeReviews()
@@ -50,6 +66,20 @@ class ReviewsFragment : Fragment() {
             startNewReviewFromMovie(movie)
             MainActivity.pendingMovieForReview = null // Limpa o estado
         }
+    }
+
+    // ==============================================================
+    // FUNÇÕES RESTAURADAS ABAIXO
+    // ==============================================================
+
+    private fun performLogout() {
+        // 1. Limpa os dados do usuário na sessão
+        UserManager.logout()
+
+        // 2. Navega para a Activity de Login, limpando a pilha de atividades
+        val intent = Intent(requireContext(), ActivityLogin::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 
     private fun startNewReviewFromMovie(movie: Movie) {
@@ -126,10 +156,8 @@ class ReviewsFragment : Fragment() {
             tmdbIdToSave = existingReview.tmdbId
             dialog.setTitle("Editar Review")
 
-            // ==============================================
-            // CORREÇÃO 1: MUDAR O TEXTO DO BOTÃO PARA ATUALIZAR
+            // MUDAR O TEXTO DO BOTÃO PARA ATUALIZAR
             dialogBinding.btnSave.text = "Atualizar"
-            // ==============================================
 
         } else if (movieFromSearch != null) {
             dialogBinding.etTitle.setText(movieFromSearch.title)
@@ -140,12 +168,10 @@ class ReviewsFragment : Fragment() {
             dialog.setTitle("Adicionar Nova Review")
         }
 
-        // ==============================================
-        // CORREÇÃO 2: IMPLEMENTAR LISTENER PARA O BOTÃO CANCELAR
+        // IMPLEMENTAR LISTENER PARA O BOTÃO CANCELAR
         dialogBinding.btnCancel.setOnClickListener {
             dialog.dismiss() // Apenas fecha o diálogo
         }
-        // ==============================================
 
         // --- LÓGICA DE SALVAMENTO ---
         dialogBinding.btnSave.setOnClickListener {

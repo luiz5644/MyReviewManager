@@ -21,6 +21,18 @@ class ActivityLogin : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // =========================================================
+        // CORREÇÃO ESSENCIAL: VERIFICAR USUÁRIO LOGADO AO INICIAR
+        // Se já houver um ID de usuário na sessão, redireciona
+        // para a MainActivity imediatamente.
+        // =========================================================
+        if (UserManager.currentUserId != null) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish() // Fecha a ActivityLogin
+            return
+        }
+
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -42,30 +54,33 @@ class ActivityLogin : AppCompatActivity() {
     }
 
     private fun performLogin() {
-        val username = binding.etUser.text.toString().trim()
+        val email = binding.etUser.text.toString().trim()
         val password = binding.etPassword.text.toString().trim()
 
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Preencha usuário e senha.", Toast.LENGTH_SHORT).show()
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Preencha e-mail e senha.", Toast.LENGTH_SHORT).show()
             return
         }
 
         CoroutineScope(Dispatchers.IO).launch {
 
-            val user = userDao.getUserByCredentials(username, password)
+            // Busca o usuário no banco de dados
+            val user = userDao.getUserByCredentials(email, password)
             Log.d("TESTE_LOGIN", "User encontrado: $user")
 
             withContext(Dispatchers.Main) {
                 if (user != null) {
 
-                    // CORRIGIDO: SALVAR O ID DO USUÁRIO LOGADO
-                    UserManager.setLoggedInUser(user.id) // Presumindo que sua entidade User tem um campo 'id' do tipo Long
+                    // Salva o ID e o nome/e-mail no UserManager
+                    UserManager.setLoggedInUser(user.id, user.username)
 
-                    Toast.makeText(this@ActivityLogin, "Bem-vindo, $username!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ActivityLogin, "Bem-vindo(a), $email!", Toast.LENGTH_SHORT).show()
+
+                    // Redireciona para a tela principal
                     startActivity(Intent(this@ActivityLogin, MainActivity::class.java))
-                    finish()
+                    finish() // Fecha a ActivityLogin para que o botão "Voltar" não retorne a ela
                 } else {
-                    Toast.makeText(this@ActivityLogin, "Usuário ou senha inválidos.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ActivityLogin, "E-mail ou senha inválidos.", Toast.LENGTH_LONG).show()
                 }
             }
         }
