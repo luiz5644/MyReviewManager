@@ -14,7 +14,7 @@
 
     <fragment
         android:id="@+id/telaNovaFragment"
-        android:name="com.example.myreviewmanager.ui.NovaTelaFragment"
+        android:name="com.example.myreviewmanager.ui.TelaBuscarFragment"
         android:label="Nova Tela"
         tools:layout="@layout/fragment_nova_tela" />
 
