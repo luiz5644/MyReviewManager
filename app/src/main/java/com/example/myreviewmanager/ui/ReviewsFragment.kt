@@ -9,7 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myreviewmanager.R
+import com.example.myreviewmanager.R // Import necessário para acessar R.id
 import com.example.myreviewmanager.data.Review
 import com.example.myreviewmanager.data.ReviewDatabase
 
@@ -18,7 +18,7 @@ import com.example.myreviewmanager.databinding.FragmentReviewsBinding
 import com.example.myreviewmanager.databinding.DialogReviewBinding
 import com.example.myreviewmanager.repository.ReviewRepository
 import com.example.myreviewmanager.ui.adapter.ReviewAdapter
-import com.example.myreviewmanager.data.UserManager // NOVO IMPORT
+import com.example.myreviewmanager.data.UserManager
 import com.example.myreviewmanager.viewmodel.ReviewViewModel
 import com.example.myreviewmanager.viewmodel.ReviewViewModelFactory
 
@@ -28,6 +28,8 @@ class ReviewsFragment : Fragment() {
     private lateinit var adapter: ReviewAdapter
     private var _binding: FragmentReviewsBinding? = null
     private val binding get() = _binding!!
+
+    // ... (onCreateView, onViewCreated, setupViewModel, setupRecyclerView, observeReviews permanecem inalterados) ...
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +44,6 @@ class ReviewsFragment : Fragment() {
 
         setupViewModel()
         setupRecyclerView()
-//        setupClickListeners()
         observeReviews()
 
         // NOVO: Verifica se há um filme pendente vindo da NovaTelaFragment
@@ -53,7 +54,6 @@ class ReviewsFragment : Fragment() {
         }
     }
 
-    // NOVO: Função auxiliar para iniciar a review a partir de um Movie
     private fun startNewReviewFromMovie(movie: Movie) {
         showReviewDialog(
             existingReview = null,
@@ -78,7 +78,6 @@ class ReviewsFragment : Fragment() {
     }
 
     private fun observeReviews() {
-        // A lógica de busca do userId já está no ViewModel
         viewModel.allReviews.observe(viewLifecycleOwner) { reviews ->
             adapter.updateReviews(reviews)
             if (reviews.isEmpty()) {
@@ -90,12 +89,6 @@ class ReviewsFragment : Fragment() {
             }
         }
     }
-
-//    private fun setupClickListeners() {
-//        binding.btnAddReview.setOnClickListener {
-//            showReviewDialog()
-//        }
-//    }
 
     private fun showDeleteConfirmation(review: Review) {
         AlertDialog.Builder(requireContext())
@@ -118,13 +111,22 @@ class ReviewsFragment : Fragment() {
         var tmdbIdToSave: String? = null
         val isEditing = existingReview != null
 
-        // 1. OBTÉM O ID DO USUÁRIO LOGADO ANTES DE TUDO
         val currentUserId = UserManager.requireUserId
 
         // --- PREENCHIMENTO E DEFINIÇÃO DO ESTADO ---
         if (isEditing) {
             dialogBinding.etTitle.setText(existingReview!!.title)
-            // Lógica de descrição, etc.
+
+            // CORREÇÃO 1: CARREGAR A DESCRIÇÃO NO CAMPO DE EDIÇÃO
+            dialogBinding.etDescription.setText(existingReview.description)
+
+            // CORREÇÃO 2: CARREGAR A PRIORIDADE/AVALIAÇÃO
+            when (existingReview.priority) {
+                1L -> dialogBinding.rgPriority.check(R.id.rbLow)
+                2L -> dialogBinding.rgPriority.check(R.id.rbMedium)
+                3L -> dialogBinding.rgPriority.check(R.id.rbHigh)
+            }
+
             tmdbIdToSave = existingReview.tmdbId
             dialog.setTitle("Editar Review")
         } else if (movieFromSearch != null) {
@@ -136,27 +138,28 @@ class ReviewsFragment : Fragment() {
             dialog.setTitle("Adicionar Nova Review")
         }
 
-        // --- LÓGICA DE SALVAMENTO (AGORA CORRETAMENTE DENTRO DO LISTENER) ---
+        // --- LÓGICA DE SALVAMENTO ---
         dialogBinding.btnSave.setOnClickListener {
             val title = dialogBinding.etTitle.text.toString().trim()
             val description = dialogBinding.etDescription.text.toString().trim()
 
-            // TODO: Substitua 1L pela lógica real de obter a prioridade/rating do seu DialogReviewBinding
-            val priority = 1L
+            // CORREÇÃO 3: LER A PRIORIDADE/AVALIAÇÃO CORRETA DO RADIO GROUP
+            val priority = when (dialogBinding.rgPriority.checkedRadioButtonId) {
+                R.id.rbLow -> 1L // "Bom"
+                R.id.rbMedium -> 2L // "Médio"
+                R.id.rbHigh -> 3L // "Ruim"
+                else -> 1L // Padrão se nada estiver selecionado
+            }
 
             if (title.isNotEmpty() && description.isNotEmpty()) {
 
                 val reviewToSave = Review(
                     id = existingReview?.id ?: 0,
                     title = title,
-
-                    // ESSENCIAL: Garante que o ID do usuário é anexado corretamente.
-                    // Usa o ID da review existente (se editando) OU o ID do usuário logado (se novo).
                     userId = existingReview?.userId ?: currentUserId,
-
                     tmdbId = tmdbIdToSave,
                     description = description,
-                    priority = priority,
+                    priority = priority, // Usa a prioridade lida do RadioGroup
                     createdAt = existingReview?.createdAt ?: System.currentTimeMillis()
                 )
 
@@ -179,5 +182,4 @@ class ReviewsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 }
