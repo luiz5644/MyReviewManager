@@ -13,7 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/azul_claro">
+
 
 
         <View
@@ -36,7 +38,8 @@
                 android:text="Review Title"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black" />
+
+                android:textColor="@color/azul_escuro" />
 
             <TextView
                 android:id="@+id/tvReviewDescription"
@@ -44,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:text="Review Description"
                 android:textSize="14sp"
-                android:textColor="#666666"
+                android:textColor="@color/black"
                 android:layout_marginTop="4dp" />
 
             <LinearLayout
