@@ -41,11 +41,7 @@ class ReviewsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ==============================================================
-        // CORREÇÃO: CARREGAR O NOME DO USUÁRIO NO CABEÇALHO
-        // ==============================================================
-        val userName = UserManager.requireUserName
-        binding.tvHeaderTitle.text = "Reviews do $userName"
+
 
         // ==============================================================
         // NOVO: IMPLEMENTAÇÃO DO LOGOUT NO BOTÃO
