@@ -29,4 +29,10 @@ interface ReviewDao {
 
     @Query("DELETE FROM reviews WHERE id = :reviewId")
     suspend fun deleteReviewById(reviewId: Long)
+
+    // =================================================================
+    // NOVO: CONSULTA PARA CHECAR SE O FILME JÁ FOI REVIEWADO PELO USUÁRIO
+    // =================================================================
+    @Query("SELECT * FROM reviews WHERE tmdbId = :tmdbId AND userId = :currentUserId LIMIT 1")
+    suspend fun getReviewByTmdbIdAndUserId(tmdbId: String, currentUserId: Long): Review?
 }

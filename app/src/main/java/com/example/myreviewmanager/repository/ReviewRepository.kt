@@ -27,4 +27,11 @@ class ReviewRepository(private val reviewDao: ReviewDao) {
         return reviewDao.getReviewById(reviewId)
     }
 
+    // =================================================================
+    // NOVO: FUNÇÃO PARA CHECAR DUPLICIDADE
+    // =================================================================
+    suspend fun getReviewByTmdbIdAndUserId(tmdbId: String, currentUserId: Long): Review? {
+        return reviewDao.getReviewByTmdbIdAndUserId(tmdbId, currentUserId)
+    }
+
 }

@@ -22,6 +22,10 @@ import com.example.myreviewmanager.ui.adapter.ReviewAdapter
 import com.example.myreviewmanager.data.UserManager
 import com.example.myreviewmanager.viewmodel.ReviewViewModel
 import com.example.myreviewmanager.viewmodel.ReviewViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ReviewsFragment : Fragment() {
 
@@ -41,17 +45,14 @@ class ReviewsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         // ==============================================================
-        // NOVO: IMPLEMENTAÇÃO DO LOGOUT NO BOTÃO
+        // IMPLEMENTAÇÃO DO LOGOUT NO BOTÃO
         // ==============================================================
         binding.btnLogout.setOnClickListener {
             performLogout()
         }
         // ==============================================================
 
-        // FUNÇÕES RESTAURADAS APÓS O ERRO 'Unresolved reference'
         setupViewModel()
         setupRecyclerView()
         observeReviews()
@@ -63,10 +64,6 @@ class ReviewsFragment : Fragment() {
             MainActivity.pendingMovieForReview = null // Limpa o estado
         }
     }
-
-    // ==============================================================
-    // FUNÇÕES RESTAURADAS ABAIXO
-    // ==============================================================
 
     private fun performLogout() {
         // 1. Limpa os dados do usuário na sessão
@@ -169,10 +166,14 @@ class ReviewsFragment : Fragment() {
             dialog.dismiss() // Apenas fecha o diálogo
         }
 
-        // --- LÓGICA DE SALVAMENTO ---
+        // --- LÓGICA DE SALVAMENTO COM VALIDAÇÃO DE DUPLICIDADE (CORRIGIDA) ---
         dialogBinding.btnSave.setOnClickListener {
             val title = dialogBinding.etTitle.text.toString().trim()
+
+            // =================================================================
+            // CORREÇÃO ESSENCIAL: Adicionando .text para pegar o conteúdo digitado
             val description = dialogBinding.etDescription.text.toString().trim()
+            // =================================================================
 
             val priority = when (dialogBinding.rgPriority.checkedRadioButtonId) {
                 R.id.rbLow -> 1L // "Bom"
@@ -183,23 +184,45 @@ class ReviewsFragment : Fragment() {
 
             if (title.isNotEmpty() && description.isNotEmpty()) {
 
-                val reviewToSave = Review(
-                    id = existingReview?.id ?: 0,
-                    title = title,
-                    userId = existingReview?.userId ?: currentUserId,
-                    tmdbId = tmdbIdToSave,
-                    description = description,
-                    priority = priority,
-                    createdAt = existingReview?.createdAt ?: System.currentTimeMillis()
-                )
+                // Usamos CoroutineScope(Dispatchers.IO) para chamar a função suspensa
+                CoroutineScope(Dispatchers.IO).launch {
 
-                if (isEditing) {
-                    viewModel.updateReview(reviewToSave)
-                } else {
-                    viewModel.insertReview(reviewToSave)
+                    if (!isEditing && tmdbIdToSave != null) {
+                        // 1. Checa duplicidade SOMENTE se for uma NOVA review (não edição)
+                        val existingReviewForMovie = viewModel.checkExistingReview(tmdbIdToSave, currentUserId)
+
+                        if (existingReviewForMovie != null) {
+                            // Se a review já existe, notifica o usuário na thread principal e sai
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(requireContext(), "Você já adicionou uma review para este filme.", Toast.LENGTH_LONG).show()
+                                dialog.dismiss()
+                            }
+                            return@launch // Sai da coroutine
+                        }
+                    }
+
+                    // Se for edição OU se for nova review e não houver duplicidade, salva.
+                    val reviewToSave = Review(
+                        id = existingReview?.id ?: 0,
+                        title = title,
+                        userId = existingReview?.userId ?: currentUserId,
+                        tmdbId = tmdbIdToSave,
+                        description = description,
+                        priority = priority,
+                        createdAt = existingReview?.createdAt ?: System.currentTimeMillis()
+                    )
+
+                    if (isEditing) {
+                        viewModel.updateReview(reviewToSave)
+                    } else {
+                        viewModel.insertReview(reviewToSave)
+                    }
+
+                    // Fecha o diálogo na thread principal
+                    withContext(Dispatchers.Main) {
+                        dialog.dismiss()
+                    }
                 }
-
-                dialog.dismiss()
             } else {
                 Toast.makeText(requireContext(), "Preencha Título e Descrição", Toast.LENGTH_SHORT).show()
             }
